@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suma infinita</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #numIndice, #elapsedTime, #sumResult, #absTerm, #difPi, #fastN {
+        font-family: 'Courier New', monospace;
+        }
+        
+        table {
+        
+            width: 50%; /* Ajusta el ancho de la tabla al 50% de la pantalla */
+
+            margin: 0 auto; /* Centra la tabla en la página */
+            border-collapse: collapse; /* Elimina los bordes entre celdas */
+            /*border: 1px solid black; /* Agrega un borde alrededor de la tabla */
+
+        }
+        td {
+            padding: 2px 5px; /* Reduce el espacio entre el texto y los bordes de las celdas */
+            font-family: 'Courier New', monospace; /* Fuente monoespaciada */
+            font-size: 16px; /* Ajusta el tamaño de la fuente */
+            /*border: 1px solid black; /* Agrega un borde a cada celda */
+            
+
+        }    
+        td:first-child {
+            text-align: right; /* Alinea el texto de la primera columna a la derecha */
+            width: 50%; /* Asegura que la primera columna tenga el 50% de la tabla */
+            font-size: 30px; /* Aumenta el tamaño de la fuente */
+
+        }
+
+        td:last-child {
+            text-align: left; /* Alinea el texto de la segunda columna a la izquierda */
+            width: 50%; /* Asegura que la primera columna tenga el 50% de la tabla */
+            font-size: 30px; /* Aumenta el tamaño de la fuente */
+
+
+        }
+
+
+    </style>
+
+</head>
+<body>
+    <h1>Estimación de &pi; mediante la serie de Leibniz </h1>
+    
+    <table style="border-collapse: collapse; width: 100%;">
+        <tr>
+            <td>Suma:</td>
+            <td><sspan id="sumResult">0</span></td>
+        </tr>
+        <tr>
+            <td>Digitos correctos:</td>
+            <td><span id="difPi">0</span></td>
+        </tr>    
+        <tr>
+            <td>Error:</td>
+            <td><span id="absTerm">0</span></td>
+        </tr>
+    </table>
+    
+ 
+    
+    <p>Índice : <span id="numIndice">0</span></p>
+    <p>Número de términos sumados por iteración: : <span id="fastN">0</span></p>
+    <p>Tiempo de iteración: <span id="iterTime">0</span> segundos</p>
+    <p>Tiempo de ejecución: <span id="elapsedTime">0</span> segundos</p>    
+
+    
+
+    <script>
+        // Varialabes para contabilizar tiempos
+        let startTime = performance.now();  // Almacena el tiempo de inicio
+        let elapsedTime = 0 ;
+        let iterTime = 0;
+        let lastTime = 0;
+        
+
+
+        // fastN es el número de sumas que hace internamente entre por cada actualziación
+        // de la salida. 
+        //let fastN = 1;     // Aburrido 
+        //let fastN = 10;   // Interesante
+        //let fastN = 100;  // Interesante
+        let fastN = 10000; // Veloz
+        //let fastN = 1000000; // Muy veloz
+        document.getElementById('fastN').textContent = fastN;
+
+        // Variables de cálculo
+        let suma = 0;
+        let i = 0;
+        let signo = 1;
+        let term = 0;
+
+
+
+
+        function updateSum() {
+            elapsedTime = (performance.now() - startTime)/1000; // Calcula el tiempo transcurrido en milisegundos
+            iterTime = elapsedTime - lastTime;
+            lastTime = elapsedTime;
+            
+            for (let j = 0; j < fastN; j++) {
+                // Ejecuta fasatN iteraciones sin actualizar la salida.
+                term = 4/(2*i+1);
+                suma += signo*term;      // Suma el siguiente término de la serie
+                signo = -1*signo;        // Cambia el signo del próximo término
+                i++;                     // Incrementa el índice
+            }
+                 
+
+        
+            // Actualiza el valor en la página
+            document.getElementById('sumResult').textContent = suma.toFixed(15);
+            document.getElementById('absTerm').textContent   = term.toFixed(15);
+            document.getElementById('numIndice').textContent = i;
+            document.getElementById('elapsedTime').textContent = `${elapsedTime.toFixed(0)}`; // Muestra el tiempo
+            document.getElementById('iterTime').textContent = `${iterTime.toFixed(4)}`; // Muestra el tiempo
+            document.getElementById('difPi').textContent = genPiDiffString(suma,15);
+            
+        }
+        
+        function genPiDiffString(approximation, precision) {
+            // Convierte el número aproximado y el número real de pi a cadenas
+            let realPi = Math.PI.toFixed(precision); // Obtiene el valor de pi con la precisión deseada
+            let approxPi = approximation.toFixed(precision); // La aproximación con la misma precisión
+
+            // Genera el string con "X" en las posiciones donde difieren y un "="
+            // donde coinciden.    
+            let resultString = '';
+
+            for (let i = 0; i < realPi.length; i++) {
+                if (realPi[i] === approxPi[i]) {
+                    resultString += '=';  // Si son iguales, coloca un punto
+                } else {
+                    resultString += 'X';  // Si son diferentes, coloca una "X"
+                }
+            }
+
+            return resultString;
+        }
+        
+
+        // Actualizar la suma cada 10 milisegundos
+        setInterval(updateSum, 10);
+    </script>
+</body>
+</html>
+
